@@ -132,7 +132,7 @@ def create_app(ip=None):
             code (str): The code to execute.
 
         Returns:
-            RunCellResponse: The result of the execution, including stdout, stderr, and display data.
+            RunCellResponse: The result of the execution, including stdout, stderr, display data, and the execute result.
 
         """
         try:
