@@ -105,8 +105,8 @@ def create_app(ip=None):
         return app.openapi()
 
     # Return a best faith markdown representation of the variable name
-    @app.get("/api/variable/{variable_name}", response_model=DisplayData)
-    async def get_variable(variable_name: str):
+    @app.get("/api/variable/{variable_name}")
+    async def get_variable(variable_name: str) -> DisplayData:
         """
         Get a variable by name from the notebook session.
 
@@ -123,7 +123,7 @@ def create_app(ip=None):
         except KeyError as ke:
             return ErrorData.from_exception(ke)
 
-    @app.post("/api/run_cell", response_model=RunCellResponse)
+    @app.post("/api/run_cell")
     async def execute(request: RunCellRequest) -> RunCellResponse:
         """
         Execute code in the notebook session.
