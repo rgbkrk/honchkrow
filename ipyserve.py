@@ -87,8 +87,8 @@ def create_app(ip=None):
             "name_for_human": "Notebook Session",
             "name_for_model": "notebook_session",
             "description_for_human": "Allow ChatGPT to play with data in your running Jupyter notebook server.",
-            "description_for_model": "Plugin for playing with data in a jupyter notebook. You can inspect variables.",
-            "auth": {"type": "none"},
+            "description_for_model": "Plugin for playing with data in a jupyter notebook. You can inspect variables and run code.",
+            "auth": {"type": "none"},  # YOLO 😂😭
             "api": {
                 "type": "openapi",
                 "url": "http://localhost:8000/openapi.json",
@@ -96,7 +96,7 @@ def create_app(ip=None):
             },
             "logo_url": "http://localhost:8000/logo.png",
             "contact_email": "rgbkrk@gmail.com",
-            "legal_info_url": "http://www.example.com/legal",
+            "legal_info_url": "https://github.com/rgbkrk/honchkrow/issues",
         }
 
     # Serve the OpenAPI spec at /openapi.json
