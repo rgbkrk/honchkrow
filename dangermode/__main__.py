@@ -1,8 +1,4 @@
-import asyncio
-import uvicorn
-import atexit
 from jupyter_console.app import ZMQTerminalIPythonApp
-from dangermode.app import app
 import os
 
 banner = """
@@ -23,18 +19,8 @@ class DangerModeIPython(ZMQTerminalIPythonApp):
     def initialize(self, argv=None):
         super().initialize(argv)
         self.shell.run_cell(
-            "from dangermode.main import activate_dangermode", store_history=False
+            "from dangermode import activate_dangermode", store_history=False
         )
-
-
-def activate_dangermode():
-    global server
-    config = uvicorn.Config(app)
-    server = uvicorn.Server(config)
-    loop = asyncio.get_event_loop()
-    loop.create_task(server.serve())
-
-    atexit.register(lambda: asyncio.run(server.shutdown()))
 
 
 if __name__ == "__main__":
