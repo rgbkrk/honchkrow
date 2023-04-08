@@ -114,6 +114,7 @@ def create_app(ip=None):
             variable_name (str): The name of the variable to get.
 
         Returns:
+            DisplayData: The display data for the variable, using the IPython display formatter.
 
         """
         try:
@@ -129,6 +130,9 @@ def create_app(ip=None):
 
         Args:
             code (str): The code to execute.
+
+        Returns:
+            RunCellResponse: The result of the execution, including stdout, stderr, and display data.
 
         """
         try:
