@@ -1,6 +1,7 @@
 import asyncio
 from http.client import HTTPException
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
+import base64
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
@@ -32,6 +33,23 @@ class ErrorData(BaseModel):
         return cls(error=str(e) if str(e) else type(e).__name__)
 
 
+image_store: Dict[str, bytes] = {}
+
+
+def store_images(dd: DisplayData) -> DisplayData:
+    """Convert all image/png data to URLs that the frontend can fetch"""
+    if dd.data and "image/png" in dd.data:
+        image_name = f"image-{len(image_store)}.png"
+
+        # dd.data["image/png"] is base64 encoded, so we need to decode it
+        import base64
+
+        image_store[image_name] = base64.b64decode(dd.data["image/png"])
+        dd.data["image/png"] = f"http://localhost:8000/images/{image_name}"
+
+    return dd
+
+
 class RunCellResponse(BaseModel):
     success: bool = False
     execute_result: Optional[DisplayData] = None
@@ -45,7 +63,11 @@ class RunCellResponse(BaseModel):
         ip = get_ipython()
 
         execute_result = DisplayData.from_tuple(ip.display_formatter.format(result))
-        displays = [DisplayData.from_tuple(d) for d in displays]
+        displays = [DisplayData(data=d.data, metadata=d.metadata) for d in displays]
+
+        # Convert all image/png data to URLs that the frontend can fetch
+        displays = [store_images(d) for d in displays]
+        execute_result = store_images(execute_result)
 
         return cls(
             success=True,
@@ -80,7 +102,7 @@ def create_app(ip=None):
         allow_credentials=True,
     )
 
-    @app.get("/.well-known/ai-plugin.json")
+    @app.get("/.well-known/ai-plugin.json", include_in_schema=False)
     async def get_ai_plugin_json():
         return {
             "schema_version": "v1",
@@ -100,9 +122,17 @@ def create_app(ip=None):
         }
 
     # Serve the OpenAPI spec at /openapi.json
-    @app.get("/openapi.json")
+    @app.get("/openapi.json", include_in_schema=False)
     async def get_openapi():
         return app.openapi()
+
+    @app.get("/images/{image_name}", include_in_schema=False)
+    async def get_image(image_name: str):
+        """Get an image by name from the notebook session."""
+        try:
+            return Response(image_store[image_name], media_type="image/png")
+        except KeyError as ke:
+            return ErrorData.from_exception(ke)
 
     # Return a best faith markdown representation of the variable name
     @app.get("/api/variable/{variable_name}")
@@ -153,7 +183,7 @@ def create_app(ip=None):
             )
 
     # Serve the logo file at /logo.png
-    @app.get("/logo.png")
+    @app.get("/logo.png", include_in_schema=False)
     async def get_logo():
         """
         The plugin logo
