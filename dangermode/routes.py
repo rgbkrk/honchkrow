@@ -20,8 +20,8 @@ async def get_ai_plugin_json():
         "schema_version": "v1",
         "name_for_human": "Notebook Session",
         "name_for_model": "notebook_session",
-        "description_for_human": "Allow ChatGPT to play with data in your running Jupyter notebook server.",
-        "description_for_model": "Plugin for playing with data in a jupyter notebook. You can inspect variables and run code.",
+        "description_for_human": "Allow ChatGPT to play with data in your running IPython kernel and Jupyter Notebook.",
+        "description_for_model": "Plugin for IPython/Jupyter Notebook. You can inspect variables and run code.",
         "auth": {"type": "none"},  # YOLO 😂😭
         "api": {
             "type": "openapi",
@@ -68,6 +68,4 @@ async def execute(request: RunCellRequest) -> RunCellResponse:
             return RunCellResponse.from_error(result.error_in_exec)
 
     except Exception as e:
-        return RunCellResponse(
-            success=False, result="", error=f"Error executing code: {e}"
-        )
+        return RunCellResponse.from_error(e)
