@@ -3,6 +3,7 @@ import uvicorn
 import atexit
 from jupyter_console.app import ZMQTerminalIPythonApp
 from dangermode.app import app
+import os
 
 banner = """
 🚨 DANGER MODE FOR CHATGPT 🚨
@@ -37,4 +38,4 @@ def activate_dangermode():
 
 
 if __name__ == "__main__":
-    DangerModeIPython.launch_instance()
+    DangerModeIPython.launch_instance(cwd=os.getcwd())
